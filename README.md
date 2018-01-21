@@ -1,4 +1,4 @@
 # Super-Star-2018
 70%
 
-<img src ="https://imgur.com/ozsAosi">
+<img src ="https://imgur.com/a/CnRps">
