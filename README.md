@@ -3,4 +3,4 @@
 
 Super Star app game in android 
 
-<img src ="https://imgur.com/a/CnRps">
+<img src ="https://imgur.com/ozsAosi">
