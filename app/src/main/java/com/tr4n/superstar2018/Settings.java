@@ -35,7 +35,7 @@ public class Settings extends Activity {
             R.drawable.numbertenblue, R.drawable.numberelevenblue, R.drawable.numbertwelveblue, R.drawable.numberthirdteenblue, R.drawable.numberfourteenblue, 0};
     private int[] ID_OF_THEME = {R.drawable.numberzerogreen, R.drawable.numberonegreen, R.drawable.numbertwogreen, R.drawable.numberthreegreen, R.drawable.numberfourgreen,
             R.drawable.numberfivegreen, R.drawable.numbersixgreen, R.drawable.numbersevengreen, R.drawable.numbereightgreen, R.drawable.numberninegreen,
-            R.drawable.numbertengreen, R.drawable.numberelevengreen, R.drawable.numbertwelvegreen, R.drawable.numberthirdteengreen, R.drawable.numberthirdteengreen, 0};
+            R.drawable.numbertengreen, R.drawable.numberelevengreen, R.drawable.numbertwelvegreen, R.drawable.numberthirdteengreen, R.drawable.numberfourteengreen, 0};
     public final int NUMBER_OF_CHARACTERS = 5;
     public final int NUMBER_OF_BOXSETTINGS = 3;
     public final int NUMBER_OF_COINS = 15;
@@ -56,7 +56,7 @@ public class Settings extends Activity {
     private int TurnOnSound = 1, TurnOnMusic = 1;
     private int PositionOfBoxSetting = 1;
     private int SavingCondition = 0;
-    int Object = 0; // 1 : Character, 2 : Sound, 3 : Music;
+
 
     @SuppressLint("ClickableViewAccessibility")
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,7 +112,17 @@ public class Settings extends Activity {
                 }
 
                 if (TurnOnMusic > 0) sound.turnOffBackgroundSound(ID_OF_MUSIC);
-                startActivity(new Intent(Settings.this, MainGame.class));
+
+                Intent intent = new Intent(Settings.this, MainGame.class);
+
+                Bundle bundle = new Bundle();
+                bundle.putInt("TurnOnSound", TurnOnSound);
+                bundle.putInt("TurnOnMusic", TurnOnMusic);
+                bundle.putInt("ID_OF_CHARACTER", ID_OF_CHARACTER[ID_OF_CHARACTER[NUMBER_OF_CHARACTERS]]);
+                bundle.putInt("NUMBER_STAR", ID_OF_COIN[NUMBER_OF_COINS]);
+                bundle.putInt("ID_OF_THEMES", ID_OF_THEME[NUMBER_OF_THEMES]);
+                intent.putExtra("BundleFromSettingsToMainGame", bundle);
+                startActivity(intent);
             }
         });
     }
@@ -306,4 +316,6 @@ public class Settings extends Activity {
                 break;
         }
     }
+
+
 }

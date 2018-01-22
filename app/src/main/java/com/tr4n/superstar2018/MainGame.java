@@ -1,6 +1,7 @@
 package com.tr4n.superstar2018;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -17,29 +18,29 @@ import java.util.Stack;
 
 public class MainGame extends Activity {
 
-
-    public int ID_OF_CHARACTER = 0;
-    public int ID_OF_STAR = R.drawable.coinstar;
-    public int ID_OF_SOUND = 0;
-    public int ID_OF_MUSIC = 0;
-    public final int SIZE_MAP = 12;
-    public final int NUMBER_STAR = 10;
-    public Box[][] box = new Box[20][20];
-    public Box[][] SaveBox = new Box[20][20];
-    public final int[] directY = {1, 0, -1, 0};
-    public final int[] directX = {0, -1, 0, 1};
     public int PositionCharacterX = 1;
     public int PositionCharacterY = 1;
-    private Random random = new Random();
     private int NumberMoving = 0;
-    private int Score = 0;
-    public Sound sound = new Sound(this);
-    public Stack<Pair> pairs = new Stack<Pair>();
-    TextView textViewNumberMoving;
-    ImageView[][] ImageViewBox = new ImageView[20][20];
-    ImageView ImageViewBack;
-    RelativeLayout[] RelativeLayoutDirection = new RelativeLayout[5];
-    LinearLayout LinearLayoutContainBack;
+    private int ID_OF_CHARACTER = 0;
+    private int ID_OF_STAR = R.drawable.coinstar;
+    private int TurnOnSound = 1, TurnOnMusic = 1;
+    private int NUMBER_STAR = 10;
+    private final int ID_OF_SOUND = R.raw.walking;
+    private final int ID_OF_MUSIC = R.raw.backgroundtwo;
+    public final int WIDTH_OF_MAP = 12;
+    public final int HEIGHT_OF_MAP = 12;
+    public final int EMPTY_BOX = 0, CHARACTER_BOX = 1, COIN_BOX = 2;
+    private final int[] directY = {1, 0, -1, 0};
+    private final int[] directX = {0, -1, 0, 1};
+    private Random random = new Random();
+    public int[][] MainBoard = new int[20][20];
+    private Sound sound = new Sound(this);
+    private Stack<TracingObject> TracingStack = new Stack<TracingObject>();
+    private TextView textViewNumberMoving;
+    private ImageView[][] ImageViewBox = new ImageView[20][20];
+    private ImageView ImageViewBack;
+    private RelativeLayout[] RelativeLayoutDirection = new RelativeLayout[5];
+    private LinearLayout LinearLayoutContainBack;
 
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,22 +50,23 @@ public class MainGame extends Activity {
                 WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main_game);
 
-
+        Define();
         Initialization();
-        ID_OF_CHARACTER = R.drawable.characterstar;
-        /*
-        Bundle bundle = getIntent().getBundleExtra("BundleFromSettings");
-        ID_OF_CHARACTER = bundle.getInt("ID_OF_CHARACTER");
-        ID_OF_SOUND = bundle.getInt("ID_OF_SOUND");
-        ID_OF_MUSIC = bundle.getInt("ID_OF_MUSIC");
-        */
-
-        CreateRandomMap();
-        BackFunction();
+        setBackFunction();
         MovingCharacter();
     }
 
-    private void Initialization() {
+    private void CallBackBundle() {
+        Intent intent = getIntent();
+        Bundle BundleFromSettingsToMainGame = intent.getBundleExtra("BundleFromSettingsToMainGame");
+        TurnOnSound = BundleFromSettingsToMainGame.getInt("TurnOnSound");
+        TurnOnMusic = BundleFromSettingsToMainGame.getInt("TurnOnMusic");
+        NUMBER_STAR = BundleFromSettingsToMainGame.getInt("NUMBER_STAR");
+        ID_OF_CHARACTER = BundleFromSettingsToMainGame.getInt("ID_OF_CHARACTER");
+
+    }
+
+    private void Define() {
         ImageViewBack = (ImageView) findViewById(R.id.ImageViewBack);
         LinearLayoutContainBack = (LinearLayout) findViewById(R.id.LayoutContainBack);
         textViewNumberMoving = (TextView) findViewById(R.id.TextViewMoving);
@@ -272,42 +274,50 @@ public class MainGame extends Activity {
 
     }
 
+    private void Initialization() {
+        CallBackBundle();
+        CreateRandomMap();
+        if (TurnOnMusic > 0) sound.turnOnBackgroundSound(ID_OF_MUSIC);
+
+        Solve solve = new Solve(MainBoard);
+        NumberMoving = solve.Answer;
+        textViewNumberMoving.setText(" " + solve.Answer + " ");
+
+    }
+
     private void CreateRandomMap() {
 
-        for (int i = 1; i <= SIZE_MAP; i++) {
-            for (int j = 1; j <= SIZE_MAP; j++) {
-                box[i][j] = new Box(0);
+        for (int i = 1; i <= WIDTH_OF_MAP; i++) {
+            for (int j = 1; j <= HEIGHT_OF_MAP; j++) {
+                MainBoard[i][j] = EMPTY_BOX;
             }
         }
         PositionCharacterX = PositionCharacterY = 1;
-        box[PositionCharacterX][PositionCharacterY] = new Box(1);
-        SaveBox[PositionCharacterY][PositionCharacterY] = new Box(1);
+        MainBoard[PositionCharacterX][PositionCharacterY] = CHARACTER_BOX;
 
         int CountNumberStar = 0;
         while (CountNumberStar < NUMBER_STAR) {
-
-            int x = 1 + random.nextInt(SIZE_MAP);
-            int y = 1 + random.nextInt(SIZE_MAP);
-            if (box[x][y].Information != 0) continue;
-            box[x][y] = SaveBox[x][y] = new Box(2);
-            CountNumberStar++;
+            int y = 1 + random.nextInt(HEIGHT_OF_MAP);
+            int x = 1 + random.nextInt(WIDTH_OF_MAP);
+            if (MainBoard[x][y] != EMPTY_BOX) continue;
+            MainBoard[x][y] = COIN_BOX;
+            ++CountNumberStar;
         }
-
         SetImageViewBox();
         ImageViewBack.setImageResource(R.drawable.backblack);
     }
 
     public void SetImageViewBox() {
-        for (int i = 1; i <= SIZE_MAP; i++) {
-            for (int j = 1; j <= SIZE_MAP; j++) {
-                switch (box[i][j].Information) {
-                    case 0:
+        for (int i = 1; i <= WIDTH_OF_MAP; i++) {
+            for (int j = 1; j <= HEIGHT_OF_MAP; j++) {
+                switch (MainBoard[i][j]) {
+                    case EMPTY_BOX:
                         ImageViewBox[i][j].setImageResource(0);
                         break;
-                    case 1:
+                    case CHARACTER_BOX:
                         ImageViewBox[i][j].setImageResource(ID_OF_CHARACTER);
                         break;
-                    case 2:
+                    case COIN_BOX:
                         ImageViewBox[i][j].setImageResource(ID_OF_STAR);
                         break;
                 }
@@ -319,14 +329,14 @@ public class MainGame extends Activity {
     private int setNewDirectPosition(int mode, int key) {
         if (mode == 0) {
             int newX = PositionCharacterX + directX[key];
-            if (newX == 0) return SIZE_MAP;
-            else if (newX > SIZE_MAP) return (newX % SIZE_MAP);
+            if (newX == 0) return WIDTH_OF_MAP;
+            else if (newX > WIDTH_OF_MAP) return (newX % WIDTH_OF_MAP);
             else return newX;
 
         } else {
             int newY = PositionCharacterY + directY[key];
-            if (newY == 0) return SIZE_MAP;
-            else if (newY > SIZE_MAP) return (newY - SIZE_MAP);
+            if (newY == 0) return HEIGHT_OF_MAP;
+            else if (newY > HEIGHT_OF_MAP) return (newY - HEIGHT_OF_MAP);
             else return newY;
         }
     }
@@ -337,43 +347,24 @@ public class MainGame extends Activity {
             public void onClick(View v) {
                 int newX = setNewDirectPosition(0, key);
                 int newY = setNewDirectPosition(1, key);
-
-                switch (box[newX][newY].Information) {
-                    case 0:
-                        NumberMoving++;
-                        ImageViewBox[newX][newY].setImageResource(ID_OF_CHARACTER);
-                        ImageViewBox[PositionCharacterX][PositionCharacterY].setImageResource(0);
-                        box[newX][newY] = new Box(1);
-                        box[PositionCharacterX][PositionCharacterY] = new Box(0);
-                        PositionCharacterX = newX;
-                        PositionCharacterY = newY;
-                        textViewNumberMoving.setText(" " + NumberMoving + " ");
-                        sound.playSound(R.raw.walking);
-                        ImageViewBack.setImageResource(R.drawable.back);
-                        break;
-                    case 2:
-                        NumberMoving++;
-                        Score++;
-                        ImageViewBox[newX][newY].setImageResource(ID_OF_CHARACTER);
-                        ImageViewBox[PositionCharacterX][PositionCharacterY].setImageResource(0);
-                        box[newX][newY] = new Box(1);
-                        box[PositionCharacterX][PositionCharacterY] = new Box(0);
-                        PositionCharacterX = newX;
-                        PositionCharacterY = newY;
-                        textViewNumberMoving.setText(" " + NumberMoving + " ");
-                        pairs.push(new Pair(PositionCharacterX, PositionCharacterY, NumberMoving));
-                        sound.playSound(R.raw.confirmationalbert);
-                        ImageViewBack.setImageResource(R.drawable.back);
-                        break;
-                    default:
-                        SetImageViewBox();
-
-
+                if (MainBoard[newX][newY] == EMPTY_BOX) {
+                    sound.playSound(R.raw.walking);
+                } else if (MainBoard[newX][newY] == COIN_BOX) {
+                    TracingStack.push(new TracingObject(PositionCharacterX, PositionCharacterY, NumberMoving));
+                    sound.playSound(R.raw.confirmationalbert);
                 }
+
+                ImageViewBox[newX][newY].setImageResource(ID_OF_CHARACTER);
+                ImageViewBox[PositionCharacterX][PositionCharacterY].setImageResource(EMPTY_BOX);
+                MainBoard[newX][newY] = CHARACTER_BOX;
+                MainBoard[PositionCharacterX][PositionCharacterY] = EMPTY_BOX;
+                PositionCharacterX = newX;
+                PositionCharacterY = newY;
+                setTextViewNumberMoving();
+                ImageViewBack.setImageResource(R.drawable.back);
+                SetImageViewBox();
             }
         });
-
-        textViewNumberMoving.setText(" " + NumberMoving + " ");
     }
 
     private void MovingCharacter() {
@@ -382,36 +373,34 @@ public class MainGame extends Activity {
             DirectButtonSetOnClick(i);
     }
 
-    private void BackFunction() {
-        pairs.push(new Pair(1, 1, 0));
+    private void setBackFunction() {
+        TracingStack.push(new TracingObject(1, 1, NumberMoving));
 
         LinearLayoutContainBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Pair character = new Pair(PositionCharacterX, PositionCharacterY, NumberMoving);
+                TracingObject character = new TracingObject(PositionCharacterX, PositionCharacterY, NumberMoving);
 
-                if (character.isEqual(pairs.peek())) {
-                    if (pairs.size() == 1) {
+                if (character.isEqual(TracingStack.peek())) {
+                    if (TracingStack.size() == 1) {
                         ImageViewBack.setImageResource(R.drawable.backblack);
                         return;
                     }
-                    box[PositionCharacterX][PositionCharacterY] = new Box(2);
+                    MainBoard[PositionCharacterX][PositionCharacterY] = COIN_BOX;
                     ImageViewBox[PositionCharacterX][PositionCharacterY].setImageResource(ID_OF_STAR);
-                    pairs.pop();
+                    TracingStack.pop();
                 } else {
-                    box[PositionCharacterX][PositionCharacterY] = new Box(0);
+                    MainBoard[PositionCharacterX][PositionCharacterY] = EMPTY_BOX;
                     ImageViewBox[PositionCharacterX][PositionCharacterY].setImageResource(0);
-
                 }
-
-                PositionCharacterX = pairs.peek().first;
-                PositionCharacterY = pairs.peek().second;
-                NumberMoving = pairs.peek().third;
-                box[PositionCharacterX][PositionCharacterY] = new Box(1);
+                PositionCharacterX = TracingStack.peek().first;
+                PositionCharacterY = TracingStack.peek().second;
+                NumberMoving = TracingStack.peek().third;
+                MainBoard[PositionCharacterX][PositionCharacterY] = CHARACTER_BOX;
                 ImageViewBox[PositionCharacterX][PositionCharacterY].setImageResource(ID_OF_CHARACTER);
                 textViewNumberMoving.setText(" " + NumberMoving + " ");
-                sound.playSound(R.raw.falseback);
-                if (pairs.size() == 1) {
+                sound.playSound(R.raw.snapping);
+                if (TracingStack.size() == 1) {
                     ImageViewBack.setImageResource(R.drawable.backblack);
                     return;
                 }
@@ -420,6 +409,13 @@ public class MainGame extends Activity {
         });
 
 
+    }
+
+    private void setTextViewNumberMoving() {
+        NumberMoving -- ;
+       // if(NumberMoving < 0) return;
+
+        textViewNumberMoving.setText(" " + NumberMoving + " ");
     }
 
 
