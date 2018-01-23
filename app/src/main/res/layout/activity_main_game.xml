@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@drawable/backgroundcould"
+    android:orientation="vertical"
     android:weightSum="20"
     tools:context="com.tr4n.superstar2018.MainGame">
 
@@ -72,10 +72,10 @@
                 android:weightSum="2">
 
                 <ImageView
-                    android:layout_gravity="center"
                     android:id="@+id/shizuka"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
+                    android:layout_gravity="center"
                     android:layout_weight="2"
                     android:src="@drawable/shizukaandnobitawedding" />
 
@@ -98,6 +98,7 @@
 
     <!-- MainBroad -->
     <LinearLayout
+        android:id="@+id/LayoutContainMainPlayBox"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="12"
@@ -125,11 +126,11 @@
                 android:background="@null" />
 
             <LinearLayout
-                android:background="@null"
-                android:id="@+id/MainBoard"
+                android:id="@+id/LayoutContainMainBoard"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="18"
+                android:background="@null"
                 android:orientation="vertical"
                 android:weightSum="12">
 
@@ -141,7 +142,7 @@
                     android:weightSum="12">
 
                     <LinearLayout
-
+                        android:id="@+id/LayoutContainBox1_1"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1">
@@ -4073,7 +4074,7 @@
 
 
         <LinearLayout
-            android:id="@+id/underHint"
+            android:id="@+id/LayoutUnderMainPlayBoard"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="7"
@@ -4082,7 +4083,7 @@
             android:weightSum="10">
 
             <LinearLayout
-                android:id="@+id/underLeftHint"
+                android:id="@+id/LayoutUnderLeftMainPlayBoard"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="4"
@@ -4098,7 +4099,7 @@
                     android:weightSum="3">
 
                     <LinearLayout
-                        android:id="@+id/buttonOne"
+                        android:id="@+id/LayoutContainSolving"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
@@ -4106,11 +4107,11 @@
 
 
                         <ImageView
-                            android:id="@+id/imageView6"
+                            android:id="@+id/ImageViewSolving"
                             android:layout_width="45dp"
                             android:layout_height="45dp"
                             android:layout_weight="1"
-                            android:src="@drawable/moregame" />
+                            android:src="@drawable/plusgreen" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -4152,14 +4153,14 @@
                     </LinearLayout>
 
                     <LinearLayout
-                        android:id="@+id/buttonFive"
+                        android:id="@+id/LayoutContainRefresh"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:orientation="horizontal">
 
                         <ImageView
-                            android:id="@+id/imageView3"
+                            android:id="@+id/ImageViewRefresh"
                             android:layout_width="45dp"
                             android:layout_height="45dp"
                             android:layout_weight="1"
@@ -4192,14 +4193,14 @@
                     android:weightSum="3">
 
                     <LinearLayout
-                        android:id="@+id/buttonSeven"
+                        android:id="@+id/LayoutContainHome"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:orientation="horizontal">
 
                         <ImageView
-                            android:id="@+id/imageView2"
+                            android:id="@+id/ImageViewHome"
                             android:layout_width="45dp"
                             android:layout_height="45dp"
                             android:layout_weight="1"
@@ -4231,7 +4232,7 @@
 
 
             <RelativeLayout
-                android:id="@+id/underRightHint"
+                android:id="@+id/LayoutUnderRightMainBoard"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="6">
